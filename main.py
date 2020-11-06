@@ -3,6 +3,7 @@
 """
 from fastapi import FastAPI, Query
 import uvicorn
+from suggest_station import LineSuggest, StationSuggest
 
 from typing import List
 
@@ -15,14 +16,31 @@ def read_root():
 
 
 @app.get("/line")
-def prac(line_name: str = Query(None)) -> list:
+def suggest_line(line_name: str = Query(None)) -> List[dict]:
     """
-    実験用関数
-    e.g.) "東急"
+    入力された路線名に対してサジェストを返す
+    "/line?line_name=路線名"
+
+    @param line_name: 入力路線名
+    @return: 路線名サジェスト e.g.) [{"line_name": line_name1}, {"line_name": line_name2}...]
     """
-    prac_list = ['東急東横線', '東急大井町線', 'JR山手線', '東急田園都市線']
-    partial_matches = [line for line in prac_list if line_name in line]
-    return [line_name, partial_matches]
+    ls = LineSuggest(line_name)
+    print(ls.suggest())
+    return ls.suggest()
+
+
+@app.get("/station")
+def suggest_line(line_name: str = Query(None), station_name: str = Query(None)) -> List[dict]:
+    """
+    入力された路線名に対してサジェストを返す
+    "/line?line_name=路線名&station_name=駅名"
+
+    @param line_name: 入力路線名(正しい路線名)
+    @param station_name: 入力駅名
+    @return: 駅名サジェスト e.g.) [{"station_name": station_name1}, {"station_name": station_name2}...]
+    """
+    ss = StationSuggest(line_name, station_name)
+    return ss.suggest()
 
 
 if __name__ == '__main__':
